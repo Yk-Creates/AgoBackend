@@ -4,6 +4,8 @@ import { CabOrder } from "../models/order.js";
 import { AmbulanceOrder } from "../models/amb-order.js";
 import { User } from '../models/user.js';
 import { getAddressFromCoordinates } from '../utils/geocoding.js';
+import { Vehicle } from "../models/vehicle.js";
+import { VehicleCategory } from "../models/vehicleCategory.js";
 
 
 // Get all drivers
@@ -95,7 +97,7 @@ export const getAllCabOrders = async (req, res) => {
       const orders = await CabOrder.find()
         .populate({
           path: 'user',
-          select: 'name email phoneNo clerkId', // Fields to include from the User model
+          select: 'name email phoneNo clerkId',
           model: User,
         })
         .exec();
@@ -188,3 +190,60 @@ export const getAllAmbOrders = async (req, res) => {
         return res.status(500).json({ message: "Server error", error });
     }
 };
+
+
+
+
+
+
+
+
+// Function to get all vehicles by category
+export const getVehiclesByCategory = async (req, res) => {
+    const { category } = req.params; // Category passed in as a route parameter
+
+    try {
+      // Find the category and populate the vehicles associated with it
+      const vehicleCategory = await VehicleCategory.findOne({ name: category }).populate('vehicles');
+
+      if (!vehicleCategory) {
+        return res.status(404).json({ message: 'Category not found' });
+      }
+
+      return res.status(200).json(vehicleCategory.vehicles); // Return the vehicles under this category
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Server error' });
+    }
+  };
+
+  // Function to update the price per km for a specific vehicle
+  export const updateVehiclePricePerKm = async (req, res) => {
+    const { vehicleId } = req.params; // Vehicle ID passed in as a route parameter
+    const { newPrice } = req.body; // The new price per km passed in the request body
+
+    if (!newPrice || newPrice <= 0) {
+      return res.status(400).json({ message: 'Please provide a valid price' });
+    }
+
+    try {
+      // Find the vehicle by ID
+      const vehicle = await Vehicle.findById(vehicleId);
+
+      if (!vehicle) {
+        return res.status(404).json({ message: 'Vehicle not found' });
+      }
+
+      // Update the price per km
+      vehicle.pricePerKm = newPrice;
+      await vehicle.save(); // Save the updated vehicle
+
+      return res.status(200).json({
+        message: `Price for vehicle ${vehicle.name} updated to ${newPrice} per km`,
+        vehicle,
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Server error' });
+    }
+  };

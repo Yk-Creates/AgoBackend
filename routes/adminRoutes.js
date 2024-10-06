@@ -1,7 +1,7 @@
 import express from "express";
 
 import { createVehicle, createVehicleCategory, getCategoriesWithVehicles } from '../controllers/category.js';
-import { getAllAmbOrders, getAllCabOrders } from "../controllers/admin.js";
+import { getAllAmbOrders, getAllCabOrders, getVehiclesByCategory, updateVehiclePricePerKm } from "../controllers/admin.js";
 
 
 const router = express.Router();
@@ -16,8 +16,15 @@ router.get('/categories', getCategoriesWithVehicles);
 //create a new vehicle under a category
 router.post('/new-vehicle', createVehicle);
 
-//get all oders 
+//get all oders
 router.get('/cab-orders', getAllCabOrders);
 router.get('/amb-orders' , getAllAmbOrders);
+
+// Route to get vehicles by category
+router.get('/category/:category', getVehiclesByCategory);
+
+// Route to update the price per km for a specific vehicle
+router.put('/category/:vehicleId/price', updateVehiclePricePerKm);
+
 
 export default router;
