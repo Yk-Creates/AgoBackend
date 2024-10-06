@@ -23,8 +23,8 @@ router.get('/amb-orders' , getAllAmbOrders);
 // Route to get vehicles by category
 router.get('/category/:category', getVehiclesByCategory);
 
-// Route to update the price per km for a specific vehicle
-router.put('/category/:vehicleId/price', updateVehiclePricePerKm);
+// Rou/categoryte to update the price per km for a specific vehicle
+router.put('/:vehicleId/price', updateVehiclePricePerKm);
 
 
 export default router;
