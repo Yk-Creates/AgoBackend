@@ -3,11 +3,11 @@ import { CabOrder } from "../models/order.js";
 import { User } from "../models/user.js";
 import { Vehicle } from "../models/vehicle.js";
 import { AmbulanceOrder } from "../models/amb-order.js";
-import { getAddressFromCoordinates } from '../utils/geocoding.js';
+import { getAddressFromCoordinates } from "../utils/geocoding.js";
 import { Driver } from "../models/driver.js";
 
 // const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
-const API_KEY = 'AIzaSyC8zy45f-dWZWg0P4A9mGAZjNlMYTnJRvI';
+const API_KEY = "AIzaSyC8zy45f-dWZWg0P4A9mGAZjNlMYTnJRvI";
 
 //register user
 export const addUser = async (req, res) => {
@@ -50,7 +50,6 @@ export const addUser = async (req, res) => {
 //   }
 // };
 
-
 const fetchTravelDistance = async (startLat, startLong, endLat, endLong) => {
   const origin = `${startLat},${startLong}`;
   const destination = `${endLat},${endLong}`;
@@ -61,7 +60,7 @@ const fetchTravelDistance = async (startLat, startLong, endLat, endLong) => {
     const data = await response.json();
     console.log("Google Maps API response:", data); // Log API response for debugging
 
-    if (data.status === 'REQUEST_DENIED') {
+    if (data.status === "REQUEST_DENIED") {
       throw new Error(`Google Maps API error: ${data.error_message}`);
     }
 
@@ -71,14 +70,14 @@ const fetchTravelDistance = async (startLat, startLong, endLat, endLong) => {
         const leg = route.legs[0];
         return {
           distance: leg.distance.value / 1000, // Convert meters to kilometers
-          duration: leg.duration.text
+          duration: leg.duration.text,
         };
       }
     }
-    throw new Error('No route found');
+    throw new Error("No route found");
   } catch (error) {
-    console.error('Error fetching directions:', error);
-    throw new Error('Failed to fetch travel distance');
+    console.error("Error fetching directions:", error);
+    throw new Error("Failed to fetch travel distance");
   }
 };
 
@@ -88,28 +87,33 @@ export const calculateFareController = async (req, res) => {
 
   try {
     // Step 1: Get the travel distance and duration using the fetchTravelDistance function
-    const { distance, duration } = await fetchTravelDistance(startLat, startLong, endLat, endLong);
-    console.log('Distance and duration:', { distance, duration }); // Log distance and duration
+    const { distance, duration } = await fetchTravelDistance(
+      startLat,
+      startLong,
+      endLat,
+      endLong
+    );
+    console.log("Distance and duration:", { distance, duration }); // Log distance and duration
 
     // Step 2: Get the start and end addresses using the utility function
     const [startAddress, endAddress] = await Promise.all([
       getAddressFromCoordinates(startLat, startLong),
       getAddressFromCoordinates(endLat, endLong),
     ]);
-    console.log('Addresses:', { startAddress, endAddress }); // Log addresses
+    console.log("Addresses:", { startAddress, endAddress }); // Log addresses
 
     // Step 3: Fetch all vehicles and calculate the fare for each
-    const vehicles = await Vehicle.find();
+    const vehicles = await Vehicle.find({ category: "Ride" });
     if (!vehicles.length) {
-      throw new Error('No vehicles found');
+      throw new Error("No vehicles found");
     }
-    console.log('Vehicles:', vehicles); // Log vehicles
+    console.log("Vehicles:", vehicles); // Log vehicles
 
-    const fares = vehicles.map(vehicle => ({
+    const fares = vehicles.map((vehicle) => ({
       vehicle: vehicle.name,
       fare: (distance * vehicle.pricePerKm).toFixed(2), // Format fare to 2 decimal places
     }));
-    console.log('Fares:', fares); // Log fares
+    console.log("Fares:", fares); // Log fares
 
     // Step 4: Send the response
     res.json({
@@ -120,181 +124,202 @@ export const calculateFareController = async (req, res) => {
       fares,
     });
   } catch (error) {
-    console.error('Error in calculateFareController:', error.message); // Log detailed error
-    res.status(500).json({ error: 'Failed to calculate fare', details: error.message });
+    console.error("Error in calculateFareController:", error.message); // Log detailed error
+    res
+      .status(500)
+      .json({ error: "Failed to calculate fare", details: error.message });
   }
 };
 
 //book a cab
 export const createCabOrder = async (req, res) => {
-    try {
-      const { clerkId, start, end, date, time, fare, vehicle } = req.body;
+  try {
+    const { clerkId, start, end, date, time, fare, vehicle } = req.body;
 
-      // Check if the user with the provided clerkId exists
-      const user = await User.findOne({ clerkId });
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      // Create a new cab order with the vehicle as a string
-      const newOrder = new CabOrder({
-        user: user._id, // Use the ObjectId of the user
-        start: {
-          latitude: start.latitude,
-          longitude: start.longitude,
-        },
-        end: {
-          latitude: end.latitude,
-          longitude: end.longitude,
-        },
-        date,
-        time,
-        fare,
-        vehicle,
-      });
-
-      // Save the new order to the database
-      await newOrder.save();
-
-      // Respond with the created order
-      return res.status(201).json({
-        message: "Cab order created successfully",
-        order: newOrder,
-      });
-    } catch (error) {
-      console.error("Error creating cab order:", error);
-      return res.status(500).json({ message: "Internal server error" });
+    // Check if the user with the provided clerkId exists
+    const user = await User.findOne({ clerkId });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-  };
 
+    // Create a new cab order with the vehicle as a string
+    const newOrder = new CabOrder({
+      user: user._id, // Use the ObjectId of the user
+      start: {
+        latitude: start.latitude,
+        longitude: start.longitude,
+      },
+      end: {
+        latitude: end.latitude,
+        longitude: end.longitude,
+      },
+      date,
+      time,
+      fare,
+      vehicle,
+    });
 
-  //Ambulance apis
-  export const calculateAmbulanceFare = async (req, res) => {
-    const { startLat, startLong, endLat, endLong } = req.body;
+    // Save the new order to the database
+    await newOrder.save();
 
-    try {
-      // Step 1: Get the travel distance and duration
-      const { distance, duration } = await fetchTravelDistance(startLat, startLong, endLat, endLong);
-      console.log('Distance and duration:', { distance, duration }); // Log distance and duration
+    // Respond with the created order
+    return res.status(201).json({
+      message: "Cab order created successfully",
+      order: newOrder,
+    });
+  } catch (error) {
+    console.error("Error creating cab order:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
 
-      // Step 2: Get the start and end addresses using the utility function
-      const [startAddress, endAddress] = await Promise.all([
-        getAddressFromCoordinates(startLat, startLong),
-        getAddressFromCoordinates(endLat, endLong),
-      ]);
-      console.log('Addresses:', { startAddress, endAddress }); // Log addresses
+//Ambulance apis
+export const calculateAmbulanceFare = async (req, res) => {
+  const { startLat, startLong, endLat, endLong } = req.body;
 
-      // Step 3: Fetch all vehicles in the "Ambulance" category and calculate the fare for each
-      const vehicles = await Vehicle.find({ category: 'Ambulance' });
-      if (!vehicles.length) {
-        throw new Error('No ambulance vehicles found');
-      }
-      console.log('Ambulance Vehicles:', vehicles); // Log vehicles
+  try {
+    // Step 1: Get the travel distance and duration
+    const { distance, duration } = await fetchTravelDistance(
+      startLat,
+      startLong,
+      endLat,
+      endLong
+    );
+    console.log("Distance and duration:", { distance, duration }); // Log distance and duration
 
-      const fares = vehicles.map(vehicle => ({
-        vehicle: vehicle.name,
-        fare: (distance * vehicle.pricePerKm).toFixed(2), // Format fare to 2 decimal places
-      }));
-      console.log('Fares:', fares); // Log fares
+    // Step 2: Get the start and end addresses using the utility function
+    const [startAddress, endAddress] = await Promise.all([
+      getAddressFromCoordinates(startLat, startLong),
+      getAddressFromCoordinates(endLat, endLong),
+    ]);
+    console.log("Addresses:", { startAddress, endAddress }); // Log addresses
 
-      // Step 4: Send the response
-      res.json({
-        startAddress,
-        endAddress,
-        distance: `${distance.toFixed(2)} km`, // Format distance to 2 decimal places
-        duration,
-        fares,
-      });
-    } catch (error) {
-      console.error('Error in calculateFareController:', error.message); // Log detailed error
-      res.status(500).json({ error: 'Failed to calculate fare', details: error.message });
+    // Step 3: Fetch all vehicles in the "Ambulance" category and calculate the fare for each
+    const vehicles = await Vehicle.find({ category: "Ambulance" });
+    if (!vehicles.length) {
+      throw new Error("No ambulance vehicles found");
     }
-  };
+    console.log("Ambulance Vehicles:", vehicles); // Log vehicles
 
-  //book an ambulance
-  export const createAmbulanceOrder = async (req, res) => {
-    try {
-      const { clerkId, start, end, date, time, fare, vehicle } = req.body;
+    const fares = vehicles.map((vehicle) => ({
+      vehicle: vehicle.name,
+      fare: (distance * vehicle.pricePerKm).toFixed(2), // Format fare to 2 decimal places
+    }));
+    console.log("Fares:", fares); // Log fares
 
-      // Check if the user with the provided clerkId exists
-      const user = await User.findOne({ clerkId });
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      const newOrder = new AmbulanceOrder({
-        user: user._id,
-        start: {
-          latitude: start.latitude,
-          longitude: start.longitude,
-        },
-        end: {
-          latitude: end.latitude,
-          longitude: end.longitude,
-        },
-        date,
-        time,
-        fare,
-        vehicle,
-      });
-      await newOrder.save();
-      return res.status(201).json({
-        message: "Ambulance order created successfully",
-        order: newOrder,
-      });
-    } catch (error) {
-      console.error("Error creating ambulance order:", error);
-      return res.status(500).json({ message: "Internal server error" });
+    // Step 4: Send the response
+    res.json({
+      startAddress,
+      endAddress,
+      distance: `${distance.toFixed(2)} km`, // Format distance to 2 decimal places
+      duration,
+      fares,
+    });
+  } catch (error) {
+    console.error("Error in calculateFareController:", error.message); // Log detailed error
+    res
+      .status(500)
+      .json({ error: "Failed to calculate fare", details: error.message });
+  }
+};
+
+//book an ambulance
+export const createAmbulanceOrder = async (req, res) => {
+  try {
+    const { clerkId, start, end, date, time, fare, vehicle } = req.body;
+
+    // Check if the user with the provided clerkId exists
+    const user = await User.findOne({ clerkId });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-  };
+    const newOrder = new AmbulanceOrder({
+      user: user._id,
+      start: {
+        latitude: start.latitude,
+        longitude: start.longitude,
+      },
+      end: {
+        latitude: end.latitude,
+        longitude: end.longitude,
+      },
+      date,
+      time,
+      fare,
+      vehicle,
+    });
+    await newOrder.save();
+    return res.status(201).json({
+      message: "Ambulance order created successfully",
+      order: newOrder,
+    });
+  } catch (error) {
+    console.error("Error creating ambulance order:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
 
-  //sos api
-  export const sos = async (req, res) => {
-    try {
-        // Destructure data from request body
-        const { clerkId ,currentLat, currentLong, date, time, vehicle = "Basic Life Support" } = req.body;
+//sos api
+export const sos = async (req, res) => {
+  try {
+    // Destructure data from request body
+    const {
+      clerkId,
+      currentLat,
+      currentLong,
+      date,
+      time,
+      vehicle = "Basic Life Support",
+    } = req.body;
 
-        const user = await User.findOne({ clerkId });
-        if (!user) {
-          return res.status(404).json({ message: "User not found" });
-        }
+    const user = await User.findOne({ clerkId });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-        const driver = await Driver.findOne({
-            vehicle: "Basic Life Support",
-            status: true // Active driver
-        }).sort({ updatedAt: -1 }); // Sort by most recently updated driver
+    const driver = await Driver.findOne({
+      vehicle: "Basic Life Support",
+      status: true, // Active driver
+    }).sort({ updatedAt: -1 }); // Sort by most recently updated driver
 
-        if (!driver) {
-            return res.status(404).json({ error: "No active driver with 'Basic Life Support' available" });
-        }
-
-        // Create the ambulance order
-        const ambulanceOrder = new AmbulanceOrder({
-            user: user._id,
-            start: {
-                latitude: currentLat,
-                longitude: currentLong,
-            },
-            end: {
-                latitude: currentLat,       // Same as start
-                longitude: currentLong,     // Same as start
-            },
-            driver: driver._id,
-            vehicle,
-            status: "SOS",
-            date,
-            time,
+    if (!driver) {
+      return res
+        .status(404)
+        .json({
+          error: "No active driver with 'Basic Life Support' available",
         });
-
-        // Save the order
-        await ambulanceOrder.save();
-
-        // Send success response
-        return res.status(201).json({
-            message: "SOS request for ambulance has been created successfully",
-            order: ambulanceOrder
-        });
-    } catch (error) {
-        console.error("Error creating SOS Ambulance order:", error);
-        return res.status(500).json({ error: "Server error while processing SOS request" });
     }
+
+    // Create the ambulance order
+    const ambulanceOrder = new AmbulanceOrder({
+      user: user._id,
+      start: {
+        latitude: currentLat,
+        longitude: currentLong,
+      },
+      end: {
+        latitude: currentLat, // Same as start
+        longitude: currentLong, // Same as start
+      },
+      driver: driver._id,
+      vehicle,
+      status: "SOS",
+      date,
+      time,
+    });
+
+    // Save the order
+    await ambulanceOrder.save();
+
+    // Send success response
+    return res.status(201).json({
+      message: "SOS request for ambulance has been created successfully",
+      order: ambulanceOrder,
+    });
+  } catch (error) {
+    console.error("Error creating SOS Ambulance order:", error);
+    return res
+      .status(500)
+      .json({ error: "Server error while processing SOS request" });
+  }
 };
