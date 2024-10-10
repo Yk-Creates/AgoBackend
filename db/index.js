@@ -4,8 +4,8 @@ import mongoose from "mongoose";
 const connectDB = async () => {
   try {
     const dbConnectionInstance = await mongoose.connect(
-    `mongodb+srv://kartik200327:ykcreates@ago.qw15fk5.mongodb.net/?retryWrites=true&w=majority&appName=Ago`
-    // `mongodb://localhost:27017/${DB_NAME}`
+      `mongodb+srv://y123:y123@cluster0.cyiwt.mongodb.net/ago?retryWrites=true&w=majority&appName=Cluster0`
+      // `mongodb://localhost:27017/${DB_NAME}`
     );
     console.log(
       `\n MongoDB connected !! DB HOST: ${dbConnectionInstance.connection.host}`
