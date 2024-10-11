@@ -398,3 +398,19 @@ export const allotCabDriver = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+export const updateOrderFare = async (req, res) => {
+  try {
+    const { orderId, fare } = req.body;
+    const order = await CabOrder.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    order.fare = fare;
+    await order.save();
+    return res.status(200).json({ message: "Order fare updated successfully" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
