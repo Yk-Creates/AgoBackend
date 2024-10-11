@@ -362,3 +362,39 @@ export const getCabOrders = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch cab orders" });
   }
 };
+
+export const getCabDrivers = async (req, res) => {
+  try {
+    const drivers = await Driver.find({
+      isVerfied: true,
+      category: "Ride",
+      status: true,
+    });
+    return res.status(200).json({
+      message: "Drivers fetched successfully",
+      drivers,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Failed to fetch drivers",
+      error: error.message,
+    });
+  }
+};
+
+export const allotCabDriver = async (req, res) => {
+  try {
+    const { orderId, driverId } = req.body;
+    const order = await CabOrder.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    order.driver = driverId;
+    await order.save();
+    return res.status(200).json({ message: "Driver assigned successfully" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};

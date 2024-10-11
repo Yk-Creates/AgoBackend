@@ -6,8 +6,10 @@ import {
   getCategoriesWithVehicles,
 } from "../controllers/category.js";
 import {
+  allotCabDriver,
   getAllAmbOrders,
   getAllCabOrders,
+  getCabDrivers,
   getCabOrders,
   getDrivers,
   getVehiclesByCategory,
@@ -42,4 +44,6 @@ router.get("/unverfied-driver", unverifiedDrivers);
 router.post("/verify-driver", verifyDriver);
 router.get("/get-drivers", getDrivers);
 router.get("/get-cab-orders", getCabOrders);
+router.get("/get-cab-drivers", getCabDrivers);
+router.patch("/allot-cab-drivers", allotCabDriver);
 export default router;

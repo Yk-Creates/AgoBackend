@@ -4,7 +4,6 @@ const vehicleCategorySchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      enum: ["Ride", "Ambulance", "Courier"],
       required: true,
     },
     vehicles: [

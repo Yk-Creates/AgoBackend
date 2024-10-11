@@ -6,6 +6,7 @@ import { Readable } from "stream";
 
 // Convert Buffer to a readable stream
 import { v2 as cloudinary } from "cloudinary";
+import { VehicleCategory } from "../models/vehicleCategory.js";
 
 // Utility function to upload an image to Cloudinary
 const uploadToCloudinary = (fileBuffer, folder) => {
@@ -39,6 +40,7 @@ export const createDriver = async (req, res) => {
       vehicle,
       area,
       clerk_id,
+      category,
     } = req.body;
 
     if (
@@ -48,6 +50,10 @@ export const createDriver = async (req, res) => {
       !req.files.permit
     ) {
       return res.status(400).json({ message: "Missing required files" });
+    }
+    const vehicleCategory = await VehicleCategory.findOne({ name: category });
+    if (!vehicleCategory) {
+      return res.status(404).json({ message: "Vehicle category not found" });
     }
 
     // Upload files to Cloudinary
@@ -88,6 +94,7 @@ export const createDriver = async (req, res) => {
         photo: permitPhoto,
       },
       clerk_id,
+      category,
     });
 
     await driver.save(); // Save to the database

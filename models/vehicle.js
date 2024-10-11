@@ -1,18 +1,21 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const vehicleSchema = new mongoose.Schema({
+const vehicleSchema = new mongoose.Schema(
+  {
     name: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     category: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     pricePerKm: {
-        type: Number,
-        required: true
+      type: Number,
+      required: true,
     },
-}, { timestamps: true });
+  },
+  { timestamps: true }
+);
 
-export const Vehicle = mongoose.model('Vehicle', vehicleSchema);
+export const Vehicle = mongoose.model("Vehicle", vehicleSchema);
