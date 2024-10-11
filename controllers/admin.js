@@ -345,11 +345,13 @@ export const getDrivers = async (req, res) => {
 export const getCabOrders = async (req, res) => {
   try {
     // Fetch cab orders with populated user data
-    const orders = await CabOrder.find().populate({
-      path: "user",
-      select: "name email phoneNo",
-      model: User, // Ensure User model is passed here
-    });
+    const orders = await CabOrder.find()
+      .populate({
+        path: "user",
+        select: "name email phoneNo",
+        model: User, // Ensure User model is passed here
+      })
+      .sort({ createdAt: -1 });
 
     // Return orders in the response
     res.status(200).json(orders);
