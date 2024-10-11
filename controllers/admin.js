@@ -368,7 +368,6 @@ export const getCabDrivers = async (req, res) => {
     const drivers = await Driver.find({
       isVerfied: true,
       category: "Ride",
-      status: true,
     });
     return res.status(200).json({
       message: "Drivers fetched successfully",
