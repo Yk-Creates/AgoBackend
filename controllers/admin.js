@@ -341,3 +341,22 @@ export const getDrivers = async (req, res) => {
     });
   }
 };
+
+export const getCabOrders = async (req, res) => {
+  try {
+    // Fetch cab orders with populated user data
+    const orders = await CabOrder.find().populate({
+      path: "user",
+      select: "name email phoneNo",
+      model: User, // Ensure User model is passed here
+    });
+
+    // Return orders in the response
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error("Error fetching cab orders:", error);
+
+    // Send an error response with appropriate status code and message
+    res.status(500).json({ error: "Failed to fetch cab orders" });
+  }
+};

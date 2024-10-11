@@ -3,11 +3,11 @@ import mongoose from "mongoose";
 const cabOrderSchema = new mongoose.Schema(
   {
     user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-        index: true,
-      },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
     start: {
       latitude: {
         type: Number,
@@ -49,8 +49,8 @@ const cabOrderSchema = new mongoose.Schema(
     },
     blocked: {
       type: Boolean,
-      default: false
-  },
+      default: false,
+    },
     fare: {
       type: Number,
       default: 0,
@@ -59,6 +59,12 @@ const cabOrderSchema = new mongoose.Schema(
     vehicle: {
       type: String,
       required: true,
+    },
+    startAddress: {
+      string: String,
+    },
+    endAddress: {
+      string: String,
     },
   },
 

@@ -83,7 +83,8 @@ const fetchTravelDistance = async (startLat, startLong, endLat, endLong) => {
 
 //select vehicle page , with fare and distance
 export const calculateFareController = async (req, res) => {
-  const { startLat, startLong, endLat, endLong } = req.body;
+  const { startLat, startLong, endLat, endLong, startAddress, endAddress } =
+    req.body;
 
   try {
     // Step 1: Get the travel distance and duration using the fetchTravelDistance function
@@ -122,6 +123,8 @@ export const calculateFareController = async (req, res) => {
       distance: `${distance.toFixed(2)} km`, // Format distance to 2 decimal places
       duration,
       fares,
+      startAddress,
+      endAddress,
     });
   } catch (error) {
     console.error("Error in calculateFareController:", error.message); // Log detailed error
@@ -134,7 +137,17 @@ export const calculateFareController = async (req, res) => {
 //book a cab
 export const createCabOrder = async (req, res) => {
   try {
-    const { clerkId, start, end, date, time, fare, vehicle } = req.body;
+    const {
+      clerkId,
+      start,
+      end,
+      date,
+      time,
+      fare,
+      vehicle,
+      startAddress,
+      endAddress,
+    } = req.body;
 
     // Check if the user with the provided clerkId exists
     const user = await User.findOne({ clerkId });
@@ -283,11 +296,9 @@ export const sos = async (req, res) => {
     }).sort({ updatedAt: -1 }); // Sort by most recently updated driver
 
     if (!driver) {
-      return res
-        .status(404)
-        .json({
-          error: "No active driver with 'Basic Life Support' available",
-        });
+      return res.status(404).json({
+        error: "No active driver with 'Basic Life Support' available",
+      });
     }
 
     // Create the ambulance order
