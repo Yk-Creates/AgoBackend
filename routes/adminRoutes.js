@@ -8,6 +8,7 @@ import {
 import {
   getAllAmbOrders,
   getAllCabOrders,
+  getDrivers,
   getVehiclesByCategory,
   unverifiedDrivers,
   updateVehiclePricePerKm,
@@ -38,4 +39,5 @@ router.put("/:vehicleId/price", updateVehiclePricePerKm);
 // driver Routes
 router.get("/unverfied-driver", unverifiedDrivers);
 router.post("/verify-driver", verifyDriver);
+router.get("/get-drivers", getDrivers);
 export default router;

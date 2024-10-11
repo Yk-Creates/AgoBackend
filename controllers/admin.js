@@ -325,3 +325,19 @@ export const verifyDriver = async (req, res) => {
     });
   }
 };
+
+export const getDrivers = async (req, res) => {
+  try {
+    const drivers = await Driver.find({ status });
+    return res.status(200).json({
+      message: "Drivers fetched successfully",
+      drivers,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Failed to fetch drivers",
+      error: error.message,
+    });
+  }
+};
