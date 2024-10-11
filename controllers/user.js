@@ -170,6 +170,8 @@ export const createCabOrder = async (req, res) => {
       time,
       fare,
       vehicle,
+      startAddress,
+      endAddress,
     });
 
     // Save the new order to the database
