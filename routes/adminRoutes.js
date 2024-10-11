@@ -14,6 +14,7 @@ import {
   getDrivers,
   getVehiclesByCategory,
   unverifiedDrivers,
+  updateOrderFare,
   updateVehiclePricePerKm,
   verifyDriver,
 } from "../controllers/admin.js";
@@ -46,4 +47,7 @@ router.get("/get-drivers", getDrivers);
 router.get("/get-cab-orders", getCabOrders);
 router.get("/get-cab-drivers", getCabDrivers);
 router.patch("/allot-cab-drivers", allotCabDriver);
+
+// admin speacial routes
+router.patch("/update-cab-fare", updateOrderFare);
 export default router;
