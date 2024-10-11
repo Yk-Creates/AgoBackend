@@ -56,15 +56,18 @@ const cabOrderSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+
     vehicle: {
       type: String,
       required: true,
     },
     startAddress: {
-      string: String,
+      type: String,
+      required: true,
     },
     endAddress: {
-      string: String,
+      type: String,
+      required: true,
     },
   },
 
