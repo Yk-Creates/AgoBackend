@@ -1,15 +1,23 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const vehicleCategorySchema = new mongoose.Schema({
+const vehicleCategorySchema = new mongoose.Schema(
+  {
     name: {
-        type: String,
-        enum: ['Ride', 'Ambulance', 'Courier'],
-        required: true
+      type: String,
+      enum: ["Ride", "Ambulance", "Courier"],
+      required: true,
     },
-    vehicles: [{
+    vehicles: [
+      {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Vehicle'
-    }]
-}, { timestamps: true });
+        ref: "Vehicle",
+      },
+    ],
+  },
+  { timestamps: true }
+);
 
-export const VehicleCategory = mongoose.model('VehicleCategory', vehicleCategorySchema);
+export const VehicleCategory = mongoose.model(
+  "VehicleCategory",
+  vehicleCategorySchema
+);

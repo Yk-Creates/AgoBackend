@@ -1,48 +1,143 @@
-const Driver = require('../models/driver'); // Adjust path as needed
-import { Vehicle } from "../models/vehicle.js";
+// controllers/driverController.js
+import { Driver } from "../models/driver.js";
+// import cloudinary from "../utils/cloudinary.js";
 
+import { Readable } from "stream";
 
+// Convert Buffer to a readable stream
+import { v2 as cloudinary } from "cloudinary";
+
+// Utility function to upload an image to Cloudinary
+const uploadToCloudinary = (fileBuffer, folder) => {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader
+      .upload_stream({ folder }, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result.secure_url); // Resolve with the URL
+        }
+      })
+      .end(fileBuffer); // Pass the buffer here directly
+  });
+};
 
 // Create a new driver
-exports.createDriver = async (req, res) => {
-    try {
-        const { name, phone, email, carNo, carModel, carYear, drivingLicense, aadharCard, employmentType, password, vehicle, permit, fcm, clerk_id } = req.body;
+export const createDriver = async (req, res) => {
+  try {
+    const {
+      name,
+      phone,
+      email,
+      carNo,
+      carModel,
+      carYear,
+      licenseNumber,
+      aadharNumber,
+      employmentType,
+      password,
+      vehicle,
+      area,
+      clerk_id,
+    } = req.body;
 
-        // Validate vehicle and permit
-        const vehicleExists = await Vehicle.findById(vehicle);
-        if (!vehicleExists) return res.status(400).json({ message: 'Vehicle not found' });
-
-        const newDriver = new Driver({
-            name,
-            phone,
-            email,
-            carNo,
-            carModel,
-            carYear,
-            drivingLicense,
-            aadharCard,
-            employmentType,
-            password, // You should hash the password before saving
-            vehicle,
-            permit,
-            fcm,
-            clerk_id
-        });
-
-        await newDriver.save();
-        res.status(201).json(newDriver);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+    if (
+      !req.files ||
+      !req.files.drivingLicense ||
+      !req.files.aadharCard ||
+      !req.files.permit
+    ) {
+      return res.status(400).json({ message: "Missing required files" });
     }
+
+    // Upload files to Cloudinary
+    const drivingLicensePhoto = await uploadToCloudinary(
+      req.files.drivingLicense[0].buffer, // Use buffer here
+      "drivers/drivingLicense"
+    );
+    const aadharCardPhoto = await uploadToCloudinary(
+      req.files.aadharCard[0].buffer, // Use buffer here
+      "drivers/aadharCard"
+    );
+    const permitPhoto = await uploadToCloudinary(
+      req.files.permit[0].buffer, // Use buffer here
+      "drivers/permit"
+    );
+
+    // Create the driver object in the database
+    const driver = new Driver({
+      name,
+      phone,
+      email,
+      carNo,
+      carModel,
+      carYear,
+      drivingLicense: {
+        photo: drivingLicensePhoto,
+        licenseNumber,
+      },
+      aadharCard: {
+        photo: aadharCardPhoto,
+        aadharNumber,
+      },
+      employmentType,
+      password,
+      vehicle,
+      permit: {
+        area,
+        photo: permitPhoto,
+      },
+      clerk_id,
+    });
+
+    await driver.save(); // Save to the database
+
+    res.status(201).json({ message: "Driver created successfully", driver });
+  } catch (error) {
+    console.error("Error creating driver:", error);
+    res.status(500).json({ message: "Error creating driver", error });
+  }
 };
 
-// Get all drivers
-exports.getDrivers = async (req, res) => {
-    try {
-        const drivers = await Driver.find().populate('vehicle');
-        res.status(200).json(drivers);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
+// Update an existing driver
+export const updateDriver = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const driver = await Driver.findById(id);
+    if (!driver) return res.status(404).json({ message: "Driver not found" });
 
+    const updateData = { ...req.body };
+
+    // Optionally update the photos if provided
+    if (req.files && req.files.drivingLicense) {
+      const drivingLicensePhoto = await uploadToCloudinary(
+        req.files.drivingLicense[0].buffer,
+        "drivers/drivingLicense"
+      );
+      updateData.drivingLicense = {
+        ...driver.drivingLicense,
+        photo: drivingLicensePhoto,
+      };
+    }
+    if (req.files && req.files.aadharCard) {
+      const aadharCardPhoto = await uploadToCloudinary(
+        req.files.aadharCard[0].buffer,
+        "drivers/aadharCard"
+      );
+      updateData.aadharCard = { ...driver.aadharCard, photo: aadharCardPhoto };
+    }
+    if (req.files && req.files.permit) {
+      const permitPhoto = await uploadToCloudinary(
+        req.files.permit[0].buffer,
+        "drivers/permit"
+      );
+      updateData.permit = { ...driver.permit, photo: permitPhoto };
+    }
+
+    await Driver.findByIdAndUpdate(id, updateData, { new: true });
+    res.status(200).json({ message: "Driver updated successfully", driver });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error updating driver", error });
+  }
+};

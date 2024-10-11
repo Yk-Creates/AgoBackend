@@ -4,7 +4,7 @@ const ambulanceOrderSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
       index: true,
     },
@@ -34,7 +34,14 @@ const ambulanceOrderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["REQUESTED", "ACCEPTED", "CANCELLED", "REJECTED", "COMPLETED","SOS"],
+      enum: [
+        "REQUESTED",
+        "ACCEPTED",
+        "CANCELLED",
+        "REJECTED",
+        "COMPLETED",
+        "SOS",
+      ],
       default: "REQUESTED",
       index: true,
     },
@@ -58,10 +65,17 @@ const ambulanceOrderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    isVerfied: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-export const AmbulanceOrder = mongoose.model("AmbulanceOrder", ambulanceOrderSchema);
+export const AmbulanceOrder = mongoose.model(
+  "AmbulanceOrder",
+  ambulanceOrderSchema
+);

@@ -5,7 +5,7 @@ import express from "express";
 import connectDB from "./db/index.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
-
+import driverRoutes from "./routes/driverRoutes.js";
 dotenv.config();
 
 const app = express();
@@ -23,6 +23,7 @@ app.use(bodyParser.json());
 // Routes
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/drivers", driverRoutes);
 
 app.get("/", (req, res) => {
   res.send("Backend is working fine!");
