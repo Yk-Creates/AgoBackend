@@ -261,7 +261,67 @@ export const updateVehiclePricePerKm = async (req, res) => {
   }
 };
 
-export const verifyDrivers = async (req, res) => {
+export const unverifiedDrivers = async (req, res) => {
   try {
-  } catch (error) {}
+    // Fetch drivers who are not verified
+    const unverifiedDrivers = await Driver.find({ isVerfied: false });
+
+    // Return the list of unverified drivers
+    return res.status(200).json({
+      success: true,
+      message: "List of unverified drivers",
+      data: unverifiedDrivers,
+    });
+  } catch (error) {
+    // Handle any errors during the process
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch unverified drivers",
+      error: error.message,
+    });
+  }
+};
+
+export const verifyDriver = async (req, res) => {
+  try {
+    // Get driver ID from the request body
+    const { driverId } = req.body;
+
+    // Check if driverId is provided
+    if (!driverId) {
+      return res.status(400).json({
+        success: false,
+        message: "Driver ID is required",
+      });
+    }
+
+    // Find the driver by ID and update their 'isVerfied' status to true
+    const driver = await Driver.findByIdAndUpdate(
+      driverId,
+      { isVerfied: true },
+      { new: true } // Return the updated driver document
+    );
+
+    // If driver not found
+    if (!driver) {
+      return res.status(404).json({
+        success: false,
+        message: "Driver not found",
+      });
+    }
+
+    // Return success message with the updated driver data
+    return res.status(200).json({
+      success: true,
+      message: "Driver verified successfully",
+      data: driver,
+    });
+  } catch (error) {
+    // Handle any errors
+    return res.status(500).json({
+      success: false,
+      message: "Failed to verify driver",
+      error: error.message,
+    });
+  }
 };
