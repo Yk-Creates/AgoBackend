@@ -328,7 +328,7 @@ export const verifyDriver = async (req, res) => {
 
 export const getDrivers = async (req, res) => {
   try {
-    const drivers = await Driver.find({ status });
+    const drivers = await Driver.find();
     return res.status(200).json({
       message: "Drivers fetched successfully",
       drivers,
