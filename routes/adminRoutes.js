@@ -10,6 +10,7 @@ import {
   getAllAmbOrders,
   getAllCabOrders,
   getCabDrivers,
+  getCabOrderById,
   getCabOrders,
   getDrivers,
   getVehiclesByCategory,
@@ -50,4 +51,7 @@ router.patch("/allot-cab-drivers", allotCabDriver);
 
 // admin speacial routes
 router.patch("/update-cab-fare", updateOrderFare);
+
+// orders routes
+router.post("/cab-order-id", getCabOrderById);
 export default router;

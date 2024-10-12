@@ -363,6 +363,23 @@ export const getCabOrders = async (req, res) => {
   }
 };
 
+export const getCabOrderById = async (req, res) => {
+  const { id } = req.body;
+
+  try {
+    // Fetch cab orders with populated user data
+    const order = await CabOrder.findById(id).populate("user");
+
+    // Return orders in the response
+    res.status(200).json(order);
+  } catch (error) {
+    console.error("Error fetching cab orders:", error);
+
+    // Send an error response with appropriate status code and message
+    res.status(500).json({ error: "Failed to fetch cab orders" });
+  }
+};
+
 export const getCabDrivers = async (req, res) => {
   try {
     const drivers = await Driver.find({

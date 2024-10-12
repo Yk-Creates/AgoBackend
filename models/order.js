@@ -38,7 +38,6 @@ const cabOrderSchema = new mongoose.Schema(
       type: String,
       enum: ["REQUESTED", "ACCEPTED", "CANCELLED", "REJECTED", "COMPLETED"],
       default: "REQUESTED",
-      index: true,
     },
     date: {
       type: String,
