@@ -1,6 +1,10 @@
 // routes/driverRoutes.js
 import express from "express";
-import { createDriver, updateDriver } from "../controllers/driver.js";
+import {
+  createDriver,
+  loginDriver,
+  updateDriver,
+} from "../controllers/driver.js";
 import { uploadHandler, cloudinaryUpload } from "../utils/multerCloudinary.js";
 import { upload } from "../utils/multer.js";
 
@@ -26,5 +30,7 @@ router.put(
   ]),
   updateDriver
 );
+
+router.post("/login", loginDriver);
 
 export default router;

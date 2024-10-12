@@ -1,7 +1,5 @@
-
 import { Vehicle } from "../models/vehicle.js";
 import { VehicleCategory } from "../models/vehicleCategory.js";
-
 
 const ensureCategoryExists = async (categoryName) => {
   let category = await VehicleCategory.findOne({ name: categoryName });
@@ -57,7 +55,7 @@ export const getCategoriesWithVehicles = async (req, res) => {
 export const createVehicle = async (req, res) => {
   try {
     const { name, category, pricePerKm } = req.body;
-
+    console.log(name, category, pricePerKm);
     // Ensure the category exists and get the category document
     const categoryDoc = await ensureCategoryExists(category);
 

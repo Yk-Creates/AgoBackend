@@ -3,7 +3,7 @@ import { Driver } from "../models/driver.js";
 // import cloudinary from "../utils/cloudinary.js";
 
 import { Readable } from "stream";
-
+import jwt from "jsonwebtoken";
 // Convert Buffer to a readable stream
 import { v2 as cloudinary } from "cloudinary";
 import { VehicleCategory } from "../models/vehicleCategory.js";
@@ -146,5 +146,26 @@ export const updateDriver = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error updating driver", error });
+  }
+};
+
+export const loginDriver = async (req, res) => {
+  try {
+    const { phone, password } = req.body;
+    const driver = await Driver.findOne({ phone });
+    if (!driver) {
+      return res.status(404).json({ message: "Driver not found" });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign({ id: driver._id }, process.env.JWT_SECRET);
+
+    await driver.save();
+    res
+      .status(200)
+      .json({ message: "Driver logged in successfully", token, driver });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error logging in driver", error });
   }
 };
