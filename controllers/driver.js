@@ -7,6 +7,8 @@ import jwt from "jsonwebtoken";
 // Convert Buffer to a readable stream
 import { v2 as cloudinary } from "cloudinary";
 import { VehicleCategory } from "../models/vehicleCategory.js";
+import { CabOrder } from "../models/order.js";
+import { AmbulanceOrder } from "../models/amb-order.js";
 
 // Utility function to upload an image to Cloudinary
 const uploadToCloudinary = (fileBuffer, folder) => {
@@ -146,6 +148,33 @@ export const updateDriver = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error updating driver", error });
+  }
+};
+
+export const getDriverOwnOrders = async (req, res) => {
+  try {
+    const { token } = req.body;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const driver = await Driver.findById(decoded.id);
+    if (!driver) {
+      return res.status(404).json({ message: "Driver not found" });
+    }
+
+    if (driver.category == "Ride") {
+      const orders = await CabOrder.find({ driver: driver._id });
+      return res
+        .status(200)
+        .json({ message: "Orders fetched successfully", orders });
+    }
+    if (driver.category == "Ambulance") {
+      const orders = await AmbulanceOrder.find({ driver: driver._id });
+      return res
+        .status(200)
+        .json({ message: "Orders fetched successfully", orders });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching orders", error });
   }
 };
 

@@ -2,6 +2,7 @@
 import express from "express";
 import {
   createDriver,
+  getDriverOwnOrders,
   loginDriver,
   updateDriver,
 } from "../controllers/driver.js";
@@ -32,5 +33,5 @@ router.put(
 );
 
 router.post("/login", loginDriver);
-
+router.post("/orders", getDriverOwnOrders);
 export default router;
