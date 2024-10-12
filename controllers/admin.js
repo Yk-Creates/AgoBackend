@@ -346,11 +346,7 @@ export const getCabOrders = async (req, res) => {
   try {
     // Fetch cab orders with populated user data
     const orders = await CabOrder.find()
-      .populate({
-        path: "user",
-        select: "name email phoneNo",
-        model: User, // Ensure User model is passed here
-      })
+      .populate("user driver")
       .sort({ createdAt: -1 });
 
     // Return orders in the response
@@ -407,6 +403,7 @@ export const allotCabDriver = async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
     order.driver = driverId;
+    order.status = "ACCEPTED";
     await order.save();
     return res.status(200).json({ message: "Driver assigned successfully" });
   } catch (error) {
