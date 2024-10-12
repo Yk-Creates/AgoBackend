@@ -364,7 +364,7 @@ export const getCabOrderById = async (req, res) => {
 
   try {
     // Fetch cab orders with populated user data
-    const order = await CabOrder.findById(id).populate("user");
+    const order = await CabOrder.findById(id).populate("user driver");
 
     // Return orders in the response
     res.status(200).json(order);
