@@ -198,3 +198,20 @@ export const loginDriver = async (req, res) => {
     res.status(500).json({ message: "Error logging in driver", error });
   }
 };
+
+export const changeOrderStatus = async (req, res) => {
+  try {
+    const { orderId, status } = req.body;
+    const order = await AmbulanceOrder.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    order.status = status;
+    await order.save();
+    res.status(200).json({ message: "Order status updated successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error updating order status", error });
+  }
+};
